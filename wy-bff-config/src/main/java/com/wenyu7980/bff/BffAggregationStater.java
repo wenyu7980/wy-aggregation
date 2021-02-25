@@ -1,6 +1,7 @@
 package com.wenyu7980.bff;
 
 import com.wenyu7980.bff.annotation.Aggregation;
+import com.wenyu7980.bff.api.domain.*;
 import com.wenyu7980.bff.api.service.BffInternalService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,15 +15,15 @@ import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.StandardAnnotationMetadata;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -49,28 +50,60 @@ public class BffAggregationStater implements CommandLineRunner, ImportAware {
         final Set<BeanDefinition> definitions = provider.findCandidateComponents(this.basePackage);
         for (BeanDefinition definition : definitions) {
             final Class<?> clazz = Class.forName(definition.getBeanClassName());
+            RequestMapping requestMapping = clazz.getAnnotation(RequestMapping.class);
             Method[] methods = clazz.getDeclaredMethods();
+            Set<AggregationProvider> providers = new HashSet<>();
+            Set<AggregationRequirement> requirements = new HashSet<>();
             for (Method method : methods) {
                 Aggregation annotation = method.getAnnotation(Aggregation.class);
                 if (annotation != null) {
+                    AggregationProvider aggregationProvider = new AggregationProvider(getMethod(method),
+                      getPath(requestMapping, method));
                     // 返回值
                     Class<?> returnType = method.getReturnType();
                     // provider
                     if (Collection.class.isAssignableFrom(returnType)) {
                         // 数组
+                        aggregationProvider.setArrayFlag(true);
                         ParameterizedType parameterizedType = (ParameterizedType) method.getGenericReturnType();
                         Class<?> argumentType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
-                        Aggregation aggregation = argumentType.getAnnotation(Aggregation.class);
-                        if (aggregation != null) {
-                            String[] parameterNames = discoverer.getParameterNames(method);
-                            Parameter[] parameters = method.getParameters();
-                            for (int i = 0; i < parameters.length; i++) {
-                                System.out.println(parameterNames[i]);
-                                System.out.println(parameters[i]);
-                            }
-                        }
+                        aggregationProvider.setClassName(argumentType.getName());
                     } else {
                         // 非数组
+                        aggregationProvider.setArrayFlag(false);
+                        aggregationProvider.setClassName(returnType.getName());
+                    }
+
+                    String[] parameterNames = discoverer.getParameterNames(method);
+                    Parameter[] parameters = method.getParameters();
+                    Set<AggregationProviderParam> params = new HashSet<>();
+                    for (int i = 0; i < parameters.length; i++) {
+                        PathVariable pathVariable = parameters[i].getAnnotation(PathVariable.class);
+                        if (pathVariable != null) {
+                            params.add(new AggregationProviderParam(
+                              pathVariable.value() == null ? parameterNames[i] : pathVariable.value(), true));
+                            continue;
+                        }
+                        RequestParam requestParam = parameters[i].getAnnotation(RequestParam.class);
+                        if (pathVariable != null) {
+                            params.add(new AggregationProviderParam(
+                              requestParam.value() == null ? parameterNames[i] : requestParam.value(), true));
+                            continue;
+                        }
+                    }
+                    providers.add(aggregationProvider);
+                } else {
+                    Set<AggregationRequirementAttribute> attributes = new HashSet<>();
+                    if (Collection.class.isAssignableFrom(method.getReturnType())) {
+                        aggregationCheck(
+                          (Class<?>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0],
+                          null, attributes);
+                    } else {
+                        aggregationCheck(method.getReturnType(), null, attributes);
+                    }
+                    if (attributes.size() > 0) {
+                        requirements.add(
+                          new AggregationRequirement(getMethod(method), getPath(requestMapping, method), attributes));
                     }
                 }
             }
@@ -89,4 +122,88 @@ public class BffAggregationStater implements CommandLineRunner, ImportAware {
             this.applicationName = attributes.get("name").toString();
         }
     }
+
+    private String getMethod(Method method) {
+        for (Annotation annotation : method.getAnnotations()) {
+            if (annotation instanceof RequestMapping) {
+                RequestMapping mapping = (RequestMapping) annotation;
+                return mapping.method()[0].toString();
+            } else if (null != annotation.annotationType().getAnnotation(RequestMapping.class)) {
+                return annotation.annotationType().getAnnotation(RequestMapping.class).method()[0].toString();
+            }
+        }
+        return "GET";
+    }
+
+    private void aggregationCheck(Class<?> clazz, String parent, Set<AggregationRequirementAttribute> attributes) {
+        for (Field field : clazz.getFields()) {
+            Class<? extends Field> fieldClass = field.getClass();
+            if (fieldClass.isPrimitive()) {
+                continue;
+            }
+            if (field.getAnnotation(Aggregation.class) != null) {
+                AggregationRequirementAttribute attribute = new AggregationRequirementAttribute();
+                attribute.setAttribute((parent != null ? parent + "." : "") + field.getName());
+                if (Collection.class.isAssignableFrom(fieldClass)) {
+                    attribute.setArrayFlag(true);
+                    ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
+                    attribute.setClassName(parameterizedType.getActualTypeArguments()[0].getTypeName());
+                    attribute
+                      .setParams(Arrays.asList(field.getAnnotation(Aggregation.class).params()).stream().map(p -> {
+                          return new AggregationRequirementParam(p.name(), p.value(), p.constant());
+                      }).collect(Collectors.toSet()));
+                    attributes.add(attribute);
+                    continue;
+                }
+            }
+            if (fieldClass.getAnnotation(Aggregation.class) != null) {
+                AggregationRequirementAttribute attribute = new AggregationRequirementAttribute();
+                attribute.setClassName(fieldClass.getName());
+                attribute.setArrayFlag(false);
+                attribute.setAttribute((parent != null ? parent + "." : "") + field.getName());
+                attributes.add(attribute);
+                continue;
+            }
+            if (Collection.class.isAssignableFrom(fieldClass)) {
+                ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
+                aggregationCheck((Class<?>) parameterizedType.getActualTypeArguments()[0],
+                  (parent != null ? parent + "." : "") + field.getName(), attributes);
+            } else {
+                aggregationCheck(fieldClass, (parent != null ? parent + "." : "") + field.getName(), attributes);
+            }
+        }
+    }
+
+    private String getPath(RequestMapping requestMapping, Method method)
+      throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        StringBuilder builder = new StringBuilder();
+        if (requestMapping != null) {
+            builder.append(getPath(requestMapping.value(), requestMapping.path()));
+        }
+        for (Annotation annotation : method.getAnnotations()) {
+            if (annotation instanceof RequestMapping) {
+                RequestMapping mapping = (RequestMapping) annotation;
+                builder.append(getPath(mapping.value(), mapping.path()));
+                break;
+            } else if (null != annotation.annotationType().getAnnotation(RequestMapping.class)) {
+                Method path = annotation.getClass().getMethod("path");
+                Method value = annotation.getClass().getMethod("value");
+                builder.append(getPath((String[]) path.invoke(annotation), (String[]) value.invoke(annotation)));
+                break;
+            }
+        }
+        return builder.toString().replaceAll("\\/\\/", "/");
+    }
+
+    private String getPath(String[] value, String[] path) {
+        StringBuilder builder = new StringBuilder();
+        for (String p : value) {
+            builder.append("/" + p);
+        }
+        for (String p : path) {
+            builder.append("/" + p);
+        }
+        return builder.toString();
+    }
+
 }

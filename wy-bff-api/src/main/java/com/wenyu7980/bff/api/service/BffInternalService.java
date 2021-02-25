@@ -1,8 +1,7 @@
 package com.wenyu7980.bff.api.service;
 
-import com.wenyu7980.bff.api.domain.AggregationProviderDefine;
-import com.wenyu7980.bff.api.domain.AggregationRequestDefine;
-import com.wenyu7980.bff.api.domain.BffServiceDefine;
+import com.wenyu7980.bff.api.domain.AggregationInit;
+import com.wenyu7980.bff.api.domain.AggregationItem;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,26 +13,15 @@ import java.util.List;
  *
  * @author wenyu
  */
-@FeignClient(name = "wy-bff", path = "internal", contextId = "wy-bff-aggregation")
+@FeignClient(name = "wy-bff", path = "internal/aggregations", contextId = "wy-bff-aggregation")
 public interface BffInternalService {
     /**
-     * 提供者
-     * @param defines
+     * 初始化
+     * @param aggregation
      */
-    @PostMapping("providers")
-    void provider(@RequestBody List<AggregationProviderDefine> defines);
+    @PostMapping()
+    void provider(@RequestBody AggregationInit aggregation);
 
-    /**
-     * 请求
-     * @param defines
-     */
-    @PostMapping("requests")
-    void request(@RequestBody List<AggregationRequestDefine> defines);
-
-    /**
-     * 请求
-     * @return
-     */
-    @GetMapping("bff")
-    List<BffServiceDefine> get();
+    @GetMapping()
+    List<AggregationItem> getItem();
 }
