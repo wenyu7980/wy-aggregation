@@ -60,7 +60,7 @@ public class BffAggregationStater implements CommandLineRunner, ImportAware {
                     AggregationProvider aggregationProvider = new AggregationProvider(getMethod(method),
                       getPath(requestMapping, method));
                     // 返回值
-                    Class<?> returnType = method.getReturnType();
+                    Class<? > returnType = method.getReturnType();
                     // provider
                     if (Collection.class.isAssignableFrom(returnType)) {
                         // 数组
