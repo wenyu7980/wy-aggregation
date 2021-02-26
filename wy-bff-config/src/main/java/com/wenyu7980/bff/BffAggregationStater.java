@@ -48,12 +48,12 @@ public class BffAggregationStater implements CommandLineRunner, ImportAware {
         // 筛选RestController
         provider.addIncludeFilter(new AnnotationTypeFilter(RestController.class));
         final Set<BeanDefinition> definitions = provider.findCandidateComponents(this.basePackage);
+        Set<AggregationProvider> providers = new HashSet<>();
+        Set<AggregationRequirement> requirements = new HashSet<>();
         for (BeanDefinition definition : definitions) {
             final Class<?> clazz = Class.forName(definition.getBeanClassName());
             RequestMapping requestMapping = clazz.getAnnotation(RequestMapping.class);
             Method[] methods = clazz.getDeclaredMethods();
-            Set<AggregationProvider> providers = new HashSet<>();
-            Set<AggregationRequirement> requirements = new HashSet<>();
             for (Method method : methods) {
                 Aggregation annotation = method.getAnnotation(Aggregation.class);
                 if (annotation != null) {
@@ -102,12 +102,16 @@ public class BffAggregationStater implements CommandLineRunner, ImportAware {
                         aggregationCheck(method.getReturnType(), null, attributes);
                     }
                     if (attributes.size() > 0) {
-                        requirements.add(
-                          new AggregationRequirement(getMethod(method), getPath(requestMapping, method), attributes));
+                        requirements.add(new AggregationRequirement(getMethod(method),
+                          getPath(requestMapping, method).replaceAll("\\{\\w+\\}", "*"), attributes));
                     }
                 }
             }
         }
+        AggregationInit aggregationInit = new AggregationInit();
+        aggregationInit.setServiceName(this.applicationName);
+        aggregationInit.setProviders(providers);
+        aggregationInit.setRequirements(requirements);
     }
 
     @Override
@@ -136,14 +140,15 @@ public class BffAggregationStater implements CommandLineRunner, ImportAware {
     }
 
     private void aggregationCheck(Class<?> clazz, String parent, Set<AggregationRequirementAttribute> attributes) {
-        for (Field field : clazz.getFields()) {
-            Class<? extends Field> fieldClass = field.getClass();
+        for (Field field : clazz.getDeclaredFields()) {
+            Class<?> fieldClass = field.getType();
             if (fieldClass.isPrimitive()) {
                 continue;
             }
             if (field.getAnnotation(Aggregation.class) != null) {
                 AggregationRequirementAttribute attribute = new AggregationRequirementAttribute();
                 attribute.setAttribute((parent != null ? parent + "." : "") + field.getName());
+                // 数组
                 if (Collection.class.isAssignableFrom(fieldClass)) {
                     attribute.setArrayFlag(true);
                     ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
