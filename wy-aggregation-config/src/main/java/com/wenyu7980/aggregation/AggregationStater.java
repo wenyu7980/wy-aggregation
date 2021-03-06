@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import java.time.temporal.TemporalAccessor;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -90,6 +91,7 @@ public class AggregationStater implements CommandLineRunner, ImportAware {
                             continue;
                         }
                     }
+                    aggregationProvider.setParams(params);
                     providers.add(aggregationProvider);
                 } else {
                     Set<AggregationRequirementAttribute> attributes = new HashSet<>();
@@ -142,7 +144,9 @@ public class AggregationStater implements CommandLineRunner, ImportAware {
     private void aggregationCheck(Class<?> clazz, String parent, Set<AggregationRequirementAttribute> attributes) {
         for (Field field : clazz.getDeclaredFields()) {
             Class<?> fieldClass = field.getType();
-            if (fieldClass.isPrimitive()) {
+            if (fieldClass.isPrimitive() || fieldClass.isEnum() || Boolean.class.isAssignableFrom(fieldClass)
+              || String.class.isAssignableFrom(fieldClass) || TemporalAccessor.class.isAssignableFrom(fieldClass)
+              || Number.class.isAssignableFrom(fieldClass)) {
                 continue;
             }
             if (field.getAnnotation(Aggregation.class) != null) {
