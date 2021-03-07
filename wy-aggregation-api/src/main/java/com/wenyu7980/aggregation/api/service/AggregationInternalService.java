@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -22,6 +22,10 @@ public interface AggregationInternalService {
     @PostMapping()
     void aggregation(@RequestBody AggregationInit aggregation);
 
+    /**
+     * 获取需要聚合的接口
+     * @return
+     */
     @GetMapping()
-    List<AggregationItem> getItem();
+    Set<AggregationItem> getItem();
 }
