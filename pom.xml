@@ -14,8 +14,8 @@
         <version>1.0.0</version>
     </parent>
     <modules>
-        <module>wy-aggregation-api</module>
-        <module>wy-aggregation-config</module>
         <module>wy-aggregation-annotation</module>
+        <module>wy-aggregation-api</module>
+        <module>wy-aggregation-starter</module>
     </modules>
 </project>
