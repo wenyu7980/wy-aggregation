@@ -98,9 +98,13 @@ public class AggregationStater implements CommandLineRunner, ImportAware {
                     if (Collection.class.isAssignableFrom(method.getReturnType())) {
                         aggregationCheck(
                           (Class<?>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0],
+                          null, null, attributes);
+                    } else if (method.getGenericReturnType() instanceof ParameterizedType) {
+                        aggregationCheck(method.getReturnType(),
+                          (Class<?>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0],
                           null, attributes);
                     } else {
-                        aggregationCheck(method.getReturnType(), null, attributes);
+                        aggregationCheck(method.getReturnType(), null, null, attributes);
                     }
                     if (attributes.size() > 0) {
                         requirements.add(new AggregationRequirement(getMethod(method),
@@ -141,7 +145,8 @@ public class AggregationStater implements CommandLineRunner, ImportAware {
         return "GET";
     }
 
-    private void aggregationCheck(Class<?> clazz, String parent, Set<AggregationRequirementAttribute> attributes) {
+    private void aggregationCheck(Class<?> clazz, Class<?> actualType, String parent,
+      Set<AggregationRequirementAttribute> attributes) {
         for (Field field : clazz.getDeclaredFields()) {
             Class<?> fieldClass = field.getType();
             if (fieldClass.isPrimitive() || fieldClass.isEnum() || Boolean.class.isAssignableFrom(fieldClass)
@@ -175,10 +180,15 @@ public class AggregationStater implements CommandLineRunner, ImportAware {
             }
             if (Collection.class.isAssignableFrom(fieldClass)) {
                 ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
-                aggregationCheck((Class<?>) parameterizedType.getActualTypeArguments()[0],
+                aggregationCheck(
+                  actualType == null ? (Class<?>) parameterizedType.getActualTypeArguments()[0] : actualType, null,
+                  (parent != null ? parent + "." : "") + field.getName(), attributes);
+            } else if (field.getGenericType() instanceof ParameterizedType) {
+                aggregationCheck(fieldClass,
+                  (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0],
                   (parent != null ? parent + "." : "") + field.getName(), attributes);
             } else {
-                aggregationCheck(fieldClass, (parent != null ? parent + "." : "") + field.getName(), attributes);
+                aggregationCheck(fieldClass, null, (parent != null ? parent + "." : "") + field.getName(), attributes);
             }
         }
     }
