@@ -18,7 +18,7 @@ public @interface AggregationParam {
     String value();
 
     /**
-     * 是否是常亮
+     * 是否是常量
      * @return
      */
     boolean constant() default false;
