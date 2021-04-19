@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(AggregationStater.class)
+@Import({ AggregationStater.class, AggregationInitFallbackService.class })
 public @interface EnableWYAggregation {
     /**
      * basePackage

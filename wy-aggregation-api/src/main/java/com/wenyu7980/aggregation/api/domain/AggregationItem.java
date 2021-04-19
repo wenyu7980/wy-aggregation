@@ -52,4 +52,10 @@ public class AggregationItem {
     public int hashCode() {
         return Objects.hash(serviceName, method, path);
     }
+
+    @Override
+    public String toString() {
+        return "AggregationItem{" + "serviceName='" + serviceName + '\'' + ", method='" + method + '\'' + ", path='"
+          + path + '\'' + '}';
+    }
 }

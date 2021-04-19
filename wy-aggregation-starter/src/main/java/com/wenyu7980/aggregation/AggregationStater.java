@@ -2,7 +2,7 @@ package com.wenyu7980.aggregation;
 
 import com.wenyu7980.aggregation.annotation.Aggregation;
 import com.wenyu7980.aggregation.api.domain.*;
-import com.wenyu7980.aggregation.api.service.AggregationInternalService;
+import com.wenyu7980.aggregation.api.service.AggregationInitInternalService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class AggregationStater implements CommandLineRunner, ImportAware {
     @Value("${spring.application.name:''}")
     private String applicationName;
     @Autowired
-    private AggregationInternalService aggregationInternalService;
+    private AggregationInitInternalService aggregationInternalService;
     private String basePackage;
 
     @Override

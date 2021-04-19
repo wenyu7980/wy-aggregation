@@ -63,4 +63,10 @@ public class AggregationRequirementParam {
     public int hashCode() {
         return Objects.hash(name);
     }
+
+    @Override
+    public String toString() {
+        return "AggregationRequirementParam{" + "name='" + name + '\'' + ", value='" + value + '\'' + ", constant="
+          + constant + '}';
+    }
 }

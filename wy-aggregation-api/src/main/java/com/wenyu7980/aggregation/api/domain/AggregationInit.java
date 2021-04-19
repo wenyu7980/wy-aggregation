@@ -34,4 +34,10 @@ public class AggregationInit {
     public void setRequirements(Set<AggregationRequirement> requirements) {
         this.requirements = requirements;
     }
+
+    @Override
+    public String toString() {
+        return "AggregationInit{" + "serviceName='" + serviceName + '\'' + ", providers=" + providers
+          + ", requirements=" + requirements + '}';
+    }
 }

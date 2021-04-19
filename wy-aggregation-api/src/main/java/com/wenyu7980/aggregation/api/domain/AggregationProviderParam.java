@@ -52,4 +52,9 @@ public class AggregationProviderParam {
     public int hashCode() {
         return Objects.hash(name);
     }
+
+    @Override
+    public String toString() {
+        return "AggregationProviderParam{" + "name='" + name + '\'' + ", pathFlag=" + pathFlag + '}';
+    }
 }

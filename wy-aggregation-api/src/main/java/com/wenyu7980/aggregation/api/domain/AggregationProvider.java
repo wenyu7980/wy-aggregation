@@ -73,4 +73,10 @@ public class AggregationProvider {
     public int hashCode() {
         return Objects.hash(path);
     }
+
+    @Override
+    public String toString() {
+        return "AggregationProvider{" + "path='" + path + '\'' + ", className='" + className + '\'' + ", arrayFlag="
+          + arrayFlag + ", params=" + params + '}';
+    }
 }

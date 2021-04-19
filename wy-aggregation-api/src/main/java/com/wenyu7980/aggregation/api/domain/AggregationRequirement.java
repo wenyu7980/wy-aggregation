@@ -64,4 +64,10 @@ public class AggregationRequirement {
     public int hashCode() {
         return Objects.hash(method, path);
     }
+
+    @Override
+    public String toString() {
+        return "AggregationRequirement{" + "method='" + method + '\'' + ", path='" + path + '\'' + ", attributes="
+          + attributes + '}';
+    }
 }

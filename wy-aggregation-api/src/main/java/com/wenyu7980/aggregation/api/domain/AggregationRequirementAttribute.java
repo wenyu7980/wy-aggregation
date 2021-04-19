@@ -66,4 +66,10 @@ public class AggregationRequirementAttribute {
     public int hashCode() {
         return Objects.hash(attribute);
     }
+
+    @Override
+    public String toString() {
+        return "AggregationRequirementAttribute{" + "attribute='" + attribute + '\'' + ", className='" + className
+          + '\'' + ", arrayFlag=" + arrayFlag + ", params=" + params + '}';
+    }
 }
