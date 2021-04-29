@@ -95,7 +95,9 @@ public class AggregationStater implements CommandLineRunner, ImportAware {
                     providers.add(aggregationProvider);
                 } else {
                     Set<AggregationRequirementAttribute> attributes = new HashSet<>();
-                    if (Collection.class.isAssignableFrom(method.getReturnType())) {
+                    if (method.getReturnType().isPrimitive() || isWrapClass(method.getReturnType())) {
+                        continue;
+                    } else if (Collection.class.isAssignableFrom(method.getReturnType())) {
                         aggregationCheck(
                           (Class<?>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0],
                           null, null, attributes);
@@ -180,9 +182,18 @@ public class AggregationStater implements CommandLineRunner, ImportAware {
             }
             if (Collection.class.isAssignableFrom(fieldClass)) {
                 ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
-                aggregationCheck(
-                  actualType == null ? (Class<?>) parameterizedType.getActualTypeArguments()[0] : actualType, null,
-                  (parent != null ? parent + "." : "") + field.getName(), attributes);
+                Class<?> classType =
+                  actualType == null ? (Class<?>) parameterizedType.getActualTypeArguments()[0] : actualType;
+                if (classType.getAnnotation(Aggregation.class) != null) {
+                    AggregationRequirementAttribute attribute = new AggregationRequirementAttribute();
+                    attribute.setClassName(classType.getName());
+                    attribute.setArrayFlag(false);
+                    attribute.setAttribute((parent != null ? parent + "." : "") + field.getName());
+                    attributes.add(attribute);
+                } else {
+                    aggregationCheck(classType, null, (parent != null ? parent + "." : "") + field.getName(),
+                      attributes);
+                }
             } else if (field.getGenericType() instanceof ParameterizedType) {
                 aggregationCheck(fieldClass,
                   (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0],
@@ -225,4 +236,11 @@ public class AggregationStater implements CommandLineRunner, ImportAware {
         return builder.toString();
     }
 
+    private static boolean isWrapClass(Class clz) {
+        try {
+            return ((Class) clz.getField("TYPE").get(null)).isPrimitive();
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
