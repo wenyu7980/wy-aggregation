@@ -15,9 +15,14 @@ public class AggregationDetail {
     private AggregationDomain domain;
     private Set<AggregationDomain> set;
     /** 不支持递归，递归会报栈溢出异常 */
-    // private List<AggregationDetail> deeps;
+    private List<AggregationDetail> deeps;
     /** 不支持map */
     private Map<String, AggregationDomain> map;
     @Aggregation(params = { @AggregationParam(name = "id", value = "1", constant = true) })
     private List<AggregationDomain> list;
+    @Aggregation(params = { @AggregationParam(name = "id", value = "2", constant = false) })
+    private AggregationDomain[] array;
+    private Integer[] integers;
+    private Integer integer;
+    private List<String> strings;
 }

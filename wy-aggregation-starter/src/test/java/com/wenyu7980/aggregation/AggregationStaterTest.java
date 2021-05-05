@@ -32,7 +32,7 @@ public class AggregationStaterTest {
         ArgumentCaptor<AggregationInit> captor = ArgumentCaptor.forClass(AggregationInit.class);
         Mockito.verify(aggregationInitInternalService, Mockito.times(1)).aggregation(captor.capture());
         final AggregationInit value = captor.getValue();
-        Assert.assertEquals(value.getRequirements().size(), 2);
+        Assert.assertEquals(value.getRequirements().size(), 3);
         for (AggregationRequirement requirement : value.getRequirements()) {
             if (Objects.equals(requirement.getPath(), "/domains/detail/*")) {
                 Assert.assertEquals(requirement.getAttributes().size(), 3);
@@ -51,6 +51,9 @@ public class AggregationStaterTest {
                 continue;
             }
             if (Objects.equals(requirement.getPath(), "/domains/detail/List")) {
+                continue;
+            }
+            if (Objects.equals(requirement.getPath(), "/domains/detail/page")) {
                 continue;
             }
             Assert.assertTrue(false);
