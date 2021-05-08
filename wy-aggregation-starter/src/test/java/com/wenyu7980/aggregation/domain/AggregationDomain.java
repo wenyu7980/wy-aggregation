@@ -1,11 +1,11 @@
 package com.wenyu7980.aggregation.domain;
 
-import com.wenyu7980.aggregation.annotation.Aggregation;
+import com.wenyu7980.aggregation.annotation.AggregationType;
 
 /**
  *
  * @author wenyu
  */
-@Aggregation
+@AggregationType
 public class AggregationDomain {
 }

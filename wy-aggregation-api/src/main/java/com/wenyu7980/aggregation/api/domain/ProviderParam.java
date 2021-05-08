@@ -6,16 +6,24 @@ import java.util.Objects;
  *
  * @author wenyu
  */
-public class AggregationProviderParam {
+public class ProviderParam {
     /** 参数名 */
     private String name;
     /** 是否是PathVariable */
     private boolean pathFlag;
 
-    public AggregationProviderParam() {
+    public ProviderParam() {
     }
 
-    public AggregationProviderParam(String name, boolean pathFlag) {
+    public static ProviderParam ofPath(String name) {
+        return new ProviderParam(name, true);
+    }
+
+    public static ProviderParam ofQuery(String name) {
+        return new ProviderParam(name, true);
+    }
+
+    private ProviderParam(String name, boolean pathFlag) {
         this.name = name;
         this.pathFlag = pathFlag;
     }
@@ -44,7 +52,7 @@ public class AggregationProviderParam {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AggregationProviderParam that = (AggregationProviderParam) o;
+        ProviderParam that = (ProviderParam) o;
         return Objects.equals(name, that.name);
     }
 

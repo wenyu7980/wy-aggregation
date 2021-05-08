@@ -6,7 +6,7 @@ import java.util.Objects;
  *
  * @author wenyu
  */
-public class AggregationRequirementParam {
+public class RequirementParam {
     /** 参数名 */
     private String name;
     /** 引用或者常量值 */
@@ -14,10 +14,10 @@ public class AggregationRequirementParam {
     /** 是否是常量 */
     private boolean constant;
 
-    public AggregationRequirementParam() {
+    public RequirementParam() {
     }
 
-    public AggregationRequirementParam(String name, String value, boolean constant) {
+    public RequirementParam(String name, String value, boolean constant) {
         this.name = name;
         this.value = value;
         this.constant = constant;
@@ -55,7 +55,7 @@ public class AggregationRequirementParam {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AggregationRequirementParam that = (AggregationRequirementParam) o;
+        RequirementParam that = (RequirementParam) o;
         return Objects.equals(name, that.name);
     }
 

@@ -1,18 +1,19 @@
 package com.wenyu7980.aggregation;
 
-import com.wenyu7980.aggregation.domain.*;
+import com.wenyu7980.aggregation.domain.AggregationDomain;
+import com.wenyu7980.aggregation.domain.AggregationPage;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.wenyu7980.aggregation.AggregationUtil.isNonCustomType;
 
@@ -61,25 +62,5 @@ public class AggregationUtilTest {
         Assert.assertFalse(isNonCustomType(Object.class));
         Method getPage = AggregationUtilTest.class.getDeclaredMethod("getPage");
         Assert.assertFalse(isNonCustomType(getPage.getReturnType()));
-    }
-
-    public List<AggregationBinaryPage<List<AggregationDetail>, AggregationDomain[]>>[] getNonBinary() {
-        return null;
-    }
-
-    @Test
-    public void testGenericGetClassTypeFromType() throws NoSuchMethodException {
-        Method method = AggregationUtilTest.class.getDeclaredMethod("getNonBinary");
-        final Map<String, ClassType> TYPES = new HashMap<>();
-        String type = AggregationUtil.getClassTypeFromType(method.getGenericReturnType(), TYPES);
-        System.out.println(type);
-    }
-
-    @Test
-    public void testGenericReturnType() throws NoSuchMethodException {
-        Method method = AggregationUtilTest.class.getDeclaredMethod("getNonBinary");
-        Class<?> returnType = method.getReturnType();
-        Type genericReturnType = method.getGenericReturnType();
-        Assert.assertTrue(isNonCustomType(method.getGenericReturnType()));
     }
 }

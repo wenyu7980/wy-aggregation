@@ -11,7 +11,7 @@ import java.util.Set;
  *
  * @author wenyu
  */
-public class AggregationDetail {
+public class AggregationDetail extends AggregationSupperDetail {
     private AggregationDomain domain;
     private Set<AggregationDomain> set;
     /** 不支持递归，递归会报栈溢出异常 */
@@ -22,6 +22,8 @@ public class AggregationDetail {
     private List<AggregationDomain> list;
     @Aggregation(params = { @AggregationParam(name = "id", value = "2", constant = false) })
     private AggregationDomain[] array;
+    @Aggregation(params = { @AggregationParam(name = "id", value = "3", constant = false) })
+    private AggregationDomain param;
     private Integer[] integers;
     private Integer integer;
     private List<String> strings;

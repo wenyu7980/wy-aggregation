@@ -6,13 +6,8 @@ import java.lang.annotation.*;
  *
  * @author wenyu
  */
-@Target({ ElementType.FIELD })
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Aggregation {
-    /**
-     * 参数
-     * @return
-     */
-    AggregationParam[] params() default {};
+public @interface AggregationType {
 }

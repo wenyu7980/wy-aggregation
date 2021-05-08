@@ -1,16 +1,16 @@
 package com.wenyu7980.aggregation;
 
-import com.wenyu7980.aggregation.annotation.Aggregation;
-import com.wenyu7980.aggregation.domain.AggregationParam;
-import com.wenyu7980.aggregation.domain.ClassAttribute;
-import com.wenyu7980.aggregation.domain.ClassType;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.time.temporal.Temporal;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
 
 /**
  *
@@ -117,91 +117,6 @@ public class AggregationUtil {
             }
         }
         return builder.toString().replaceAll("\\/\\/", "/");
-    }
-
-    public static String getClassTypeFromType(final Type type, final Map<String, ClassType> TYPES) {
-        if (type instanceof Class) {
-            if (TYPES.containsKey(type.getTypeName())) {
-                return type.getTypeName();
-            }
-            Class clazz = (Class) type;
-            if (clazz.isArray()) {
-                return getClassTypeFromType(clazz.getComponentType(), TYPES);
-            }
-            if (clazz.getAnnotation(Aggregation.class) != null) {
-                TYPES.put(clazz.getName(), ClassType.ofAggregation(clazz.getName()));
-                return clazz.getName();
-            }
-            ClassType classType = ClassType.ofCustom(clazz.getName());
-            TYPES.put(clazz.getName(), classType);
-            Set<ClassAttribute> attributes = new HashSet<>();
-            for (Field field : clazz.getDeclaredFields()) {
-                if (isNonCustomType(field.getGenericType())) {
-                    continue;
-                } else if (field.getAnnotation(Aggregation.class) != null) {
-                    Aggregation annotation = field.getAnnotation(Aggregation.class);
-                    String typeName = null;
-                    if (field.getType().isArray()) {
-                        typeName = getClassTypeFromType(field.getType().getComponentType(), TYPES);
-                    } else if (Collection.class.isAssignableFrom(field.getType())) {
-                        typeName = getClassTypeFromType(
-                          ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0], TYPES);
-                    } else {
-                        continue;
-                    }
-                    attributes.add(ClassAttribute.ofAggregation(field.getName(), TYPES.get(typeName),
-                      Arrays.stream(annotation.params())
-                        .map(p -> new AggregationParam(p.name(), p.value(), p.constant()))
-                        .collect(Collectors.toList())));
-                } else {
-                    String typeName = getClassTypeFromType(field.getGenericType(), TYPES);
-                    attributes.add(ClassAttribute.ofCustom(field.getName(), TYPES.get(typeName)));
-                }
-            }
-            classType.setAttributes(attributes);
-            return clazz.getName();
-        } else if (type instanceof ParameterizedType) {
-            ParameterizedType parameterizedType = (ParameterizedType) type;
-            Class rawType = (Class) parameterizedType.getRawType();
-            Type[] arguments = parameterizedType.getActualTypeArguments();
-            if (Collection.class.isAssignableFrom(rawType)) {
-                return getClassTypeFromType(arguments[0], TYPES);
-            }
-            TypeVariable[] typeParameters = rawType.getTypeParameters();
-            Map<String, Type> classMap = new HashMap<>();
-            for (int i = 0; i < typeParameters.length; i++) {
-                classMap.put(typeParameters[i].getName(), arguments[i]);
-            }
-            ClassType classType = ClassType.ofCustom(type.getTypeName());
-            TYPES.put(type.getTypeName(), classType);
-            Set<ClassAttribute> attributes = new HashSet<>();
-            for (Field field : rawType.getDeclaredFields()) {
-                if (isNonCustomType(field.getType())) {
-                    continue;
-                }
-                String typeName = null;
-                Type genericType = field.getGenericType();
-                if (field.getType().isArray()) {
-                    typeName = getClassTypeFromType(classMap
-                      .getOrDefault(((GenericArrayType) genericType).getGenericComponentType().getTypeName(),
-                        field.getType()), TYPES);
-                } else if (Collection.class.isAssignableFrom(field.getType())) {
-                    Type actualTypeArgument = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-                    typeName = getClassTypeFromType(
-                      classMap.getOrDefault(actualTypeArgument.getTypeName(), actualTypeArgument), TYPES);
-                } else {
-                    typeName = getClassTypeFromType(classMap.getOrDefault(genericType.getTypeName(), genericType),
-                      TYPES);
-                }
-                attributes.add(ClassAttribute.ofCustom(field.getName(), TYPES.get(typeName)));
-            }
-            classType.setAttributes(attributes);
-            return type.getTypeName();
-        } else if (type instanceof GenericArrayType) {
-            GenericArrayType arrayType = (GenericArrayType) type;
-            return getClassTypeFromType(arrayType.getGenericComponentType(), TYPES);
-        }
-        throw new RuntimeException("缺少情况:" + type.getClass().toString());
     }
 
     private static String getMergeJoin(String[] value, String[] path) {

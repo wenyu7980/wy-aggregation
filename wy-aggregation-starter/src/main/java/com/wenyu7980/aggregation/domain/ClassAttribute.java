@@ -2,6 +2,7 @@ package com.wenyu7980.aggregation.domain;
 
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,7 +21,7 @@ public class ClassAttribute {
     }
 
     public static ClassAttribute ofCustom(String name, ClassType type) {
-        return new ClassAttribute(name, type, null);
+        return new ClassAttribute(name, type, new ArrayList<>());
     }
 
     private ClassAttribute(String name, ClassType type, List<AggregationParam> params) {
@@ -35,6 +36,10 @@ public class ClassAttribute {
 
     public ClassType getType() {
         return type;
+    }
+
+    public List<AggregationParam> getParams() {
+        return params;
     }
 
     @Override

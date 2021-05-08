@@ -8,36 +8,34 @@ import java.util.Set;
  */
 public class AggregationInit {
     private String serviceName;
-    private Set<AggregationProvider> providers;
-    private Set<AggregationRequirement> requirements;
+    private Set<Provider> providers;
+    private Set<RequirementMethod> methods;
+    private Set<RequirementType> types;
+
+    private AggregationInit() {
+    }
+
+    public AggregationInit(String serviceName, Set<Provider> providers, Set<RequirementMethod> methods,
+      Set<RequirementType> types) {
+        this.serviceName = serviceName;
+        this.providers = providers;
+        this.methods = methods;
+        this.types = types;
+    }
 
     public String getServiceName() {
         return serviceName;
     }
 
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
-    }
-
-    public Set<AggregationProvider> getProviders() {
+    public Set<Provider> getProviders() {
         return providers;
     }
 
-    public void setProviders(Set<AggregationProvider> providers) {
-        this.providers = providers;
+    public Set<RequirementMethod> getMethods() {
+        return methods;
     }
 
-    public Set<AggregationRequirement> getRequirements() {
-        return requirements;
-    }
-
-    public void setRequirements(Set<AggregationRequirement> requirements) {
-        this.requirements = requirements;
-    }
-
-    @Override
-    public String toString() {
-        return "AggregationInit{" + "serviceName='" + serviceName + '\'' + ", providers=" + providers
-          + ", requirements=" + requirements + '}';
+    public Set<RequirementType> getTypes() {
+        return types;
     }
 }

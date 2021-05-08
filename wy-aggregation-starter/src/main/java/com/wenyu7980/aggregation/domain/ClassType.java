@@ -2,6 +2,7 @@ package com.wenyu7980.aggregation.domain;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -21,7 +22,7 @@ public class ClassType {
      * @return
      */
     public static ClassType ofAggregation(String name) {
-        return new ClassType(name, null, true, true);
+        return new ClassType(name, new HashSet<>(), true, true);
     }
 
     /**
@@ -30,7 +31,7 @@ public class ClassType {
      * @return
      */
     public static ClassType ofCustom(String name) {
-        return new ClassType(name, null, false, false);
+        return new ClassType(name, new HashSet<>(), false, false);
     }
 
     private ClassType(String name, Set<ClassAttribute> attributes, boolean aggregationFlag, boolean aggregatedFlag) {
@@ -69,5 +70,22 @@ public class ClassType {
             attribute.getType().updateAggregatedFlag();
         }
         this.aggregatedFlag = attributes.stream().anyMatch(a -> a.getType().aggregatedFlag);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ClassType classType = (ClassType) o;
+        return Objects.equals(name, classType.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }
