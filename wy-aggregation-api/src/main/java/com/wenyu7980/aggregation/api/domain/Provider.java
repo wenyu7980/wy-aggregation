@@ -12,7 +12,7 @@ public class Provider {
     /** 路径格式：users/{id}，不使用通配符 */
     private String path;
     /** 类名 */
-    private String className;
+    private String typeName;
     /** 参数 */
     private Set<ProviderParam> params = new HashSet<>();
 
@@ -21,7 +21,7 @@ public class Provider {
 
     public Provider(String path, String className, Set<ProviderParam> params) {
         this.path = path;
-        this.className = className;
+        this.typeName = className;
         this.params = params;
     }
 
@@ -29,8 +29,8 @@ public class Provider {
         return path;
     }
 
-    public String getClassName() {
-        return className;
+    public String getTypeName() {
+        return typeName;
     }
 
     public Set<ProviderParam> getParams() {
@@ -56,7 +56,7 @@ public class Provider {
 
     @Override
     public String toString() {
-        return "AggregationProvider{" + "path='" + path + '\'' + ", className='" + className + '\'' + ", params="
+        return "AggregationProvider{" + "path='" + path + '\'' + ", className='" + typeName + '\'' + ", params="
           + params + '}';
     }
 }
