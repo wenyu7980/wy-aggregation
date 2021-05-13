@@ -34,8 +34,8 @@ import java.util.stream.Collectors;
  * @author wenyu
  */
 public class AggregationStater implements CommandLineRunner, ImportAware {
-    private final LocalVariableTableParameterNameDiscoverer discoverer = new LocalVariableTableParameterNameDiscoverer();
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregationStater.class);
+    private final LocalVariableTableParameterNameDiscoverer discoverer = new LocalVariableTableParameterNameDiscoverer();
     @Value("${spring.application.name:''}")
     private String applicationName;
     @Autowired
@@ -64,6 +64,7 @@ public class AggregationStater implements CommandLineRunner, ImportAware {
             LOGGER.warn("没有设定basePackage");
             return;
         }
+        LOGGER.info("AggregationStarter启动");
         Set<Provider> providers = new HashSet<>();
         AggregationRequirementObject requirementObject = new AggregationRequirementObject();
         // 扫描全部MVC接口
@@ -110,6 +111,7 @@ public class AggregationStater implements CommandLineRunner, ImportAware {
         }
         AggregationInit aggregationInit = new AggregationInit(this.applicationName, providers, methods, types);
         this.aggregationInternalService.aggregation(aggregationInit);
+        LOGGER.info("AggregationStarter运行完成");
     }
 
     @Override

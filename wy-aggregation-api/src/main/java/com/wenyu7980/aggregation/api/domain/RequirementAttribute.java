@@ -10,15 +10,15 @@ import java.util.Set;
 public class RequirementAttribute {
     private String name;
     private String type;
-    private Set<RequirementParam> param;
+    private Set<RequirementParam> params;
 
     private RequirementAttribute() {
     }
 
-    public RequirementAttribute(String name, String type, Set<RequirementParam> param) {
+    public RequirementAttribute(String name, String type, Set<RequirementParam> params) {
         this.name = name;
         this.type = type;
-        this.param = param;
+        this.params = params;
     }
 
     public String getName() {
@@ -29,8 +29,8 @@ public class RequirementAttribute {
         return type;
     }
 
-    public Set<RequirementParam> getParam() {
-        return param;
+    public Set<RequirementParam> getParams() {
+        return params;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class RequirementAttribute {
             return false;
         }
         RequirementAttribute that = (RequirementAttribute) o;
-        return Objects.equals(name, that.name) && Objects.equals(type, that.type) && Objects.equals(param, that.param);
+        return Objects.equals(name, that.name) && Objects.equals(type, that.type) && Objects.equals(params, that.params);
     }
 
     @Override

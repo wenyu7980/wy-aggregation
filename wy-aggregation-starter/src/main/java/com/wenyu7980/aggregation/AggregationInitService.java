@@ -8,6 +8,8 @@ import org.springframework.cloud.openfeign.FeignClient;
  * @author wenyu
  */
 
-@FeignClient(name = "wy-aggregation", path = "internal/aggregations", contextId = "wy-aggregation-init", fallback = AggregationInitFallbackService.class)
+@FeignClient(name = "wy-aggregation", path = "internal/aggregations", configuration = {
+  FeignConfiguration.class
+}, contextId = "wy-aggregation-init", fallback = AggregationInitFallbackService.class)
 public interface AggregationInitService extends AggregationInitInternalService {
 }
