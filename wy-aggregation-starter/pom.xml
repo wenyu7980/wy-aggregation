@@ -22,6 +22,12 @@
             <version>1.0.0</version>
         </dependency>
         <dependency>
+            <groupId>com.wenyu7980</groupId>
+            <artifactId>wy-common-feign-client</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <scope>test</scope>

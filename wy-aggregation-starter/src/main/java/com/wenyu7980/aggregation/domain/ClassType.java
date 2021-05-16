@@ -14,7 +14,7 @@ public class ClassType {
     private Set<ClassAttribute> attributes;
     /** 是否是聚合类 */
     private final boolean aggregationFlag;
-    private boolean aggregatedFlag;
+    private Boolean aggregatedFlag;
 
     /**
      * 聚合类型
@@ -59,11 +59,10 @@ public class ClassType {
 
     public void setAttributes(Collection<ClassAttribute> attributes) {
         this.attributes = new HashSet<>(attributes);
-        this.aggregatedFlag = attributes.stream().anyMatch(a -> a.getType().aggregatedFlag);
     }
 
     public void updateAggregatedFlag() {
-        if (this.aggregatedFlag) {
+        if (this.aggregatedFlag != null) {
             return;
         }
         for (ClassAttribute attribute : attributes) {
