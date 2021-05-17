@@ -31,10 +31,10 @@ public class ClassType {
      * @return
      */
     public static ClassType ofCustom(String name) {
-        return new ClassType(name, new HashSet<>(), false, false);
+        return new ClassType(name, new HashSet<>(), false, null);
     }
 
-    private ClassType(String name, Set<ClassAttribute> attributes, boolean aggregationFlag, boolean aggregatedFlag) {
+    private ClassType(String name, Set<ClassAttribute> attributes, boolean aggregationFlag, Boolean aggregatedFlag) {
         this.name = name;
         this.attributes = attributes;
         this.aggregationFlag = aggregationFlag;
@@ -53,7 +53,7 @@ public class ClassType {
         return aggregationFlag;
     }
 
-    public boolean isAggregatedFlag() {
+    public Boolean getAggregatedFlag() {
         return aggregatedFlag;
     }
 
@@ -66,6 +66,12 @@ public class ClassType {
             return;
         }
         for (ClassAttribute attribute : attributes) {
+            if (attribute.getType().isAggregationFlag()) {
+                this.aggregatedFlag = true;
+            }
+            if (attribute.getType().getAggregatedFlag() != null && attribute.getType().getAggregatedFlag()) {
+                this.aggregatedFlag = true;
+            }
             attribute.getType().updateAggregatedFlag();
         }
         this.aggregatedFlag = attributes.stream().anyMatch(a -> a.getType().aggregatedFlag);

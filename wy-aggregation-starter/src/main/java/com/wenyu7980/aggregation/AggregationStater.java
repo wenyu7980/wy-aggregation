@@ -91,13 +91,13 @@ public class AggregationStater implements CommandLineRunner, ImportAware {
             }
         }
         Set<RequirementMethod> methods = requirementObject.getMethods().stream()
-          .filter(r -> r.getType().isAggregatedFlag()).map(
+          .filter(r -> r.getType().getAggregatedFlag()).map(
             m -> new RequirementMethod(m.getMethod(), m.getPath(), m.getType().getName(),
               requirementObject.getTypes(m.getType()).stream().map(ClassType::getName).collect(Collectors.toSet())))
           .collect(Collectors.toSet());
         Set<RequirementType> types = new HashSet<>();
         for (ClassType type : requirementObject.getTypes()) {
-            if (!type.isAggregatedFlag()) {
+            if (!type.getAggregatedFlag()) {
                 continue;
             }
             Set<RequirementAttribute> attributes = new HashSet<>();
