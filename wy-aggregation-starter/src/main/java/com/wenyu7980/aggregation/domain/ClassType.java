@@ -61,10 +61,11 @@ public class ClassType {
         this.attributes = new HashSet<>(attributes);
     }
 
-    public void updateAggregatedFlag() {
+    public boolean updateAggregatedFlag() {
         if (this.aggregatedFlag != null) {
-            return;
+            return this.aggregatedFlag;
         }
+        this.aggregatedFlag = false;
         for (ClassAttribute attribute : attributes) {
             if (attribute.getType().isAggregationFlag()) {
                 this.aggregatedFlag = true;
@@ -72,9 +73,10 @@ public class ClassType {
             if (attribute.getType().getAggregatedFlag() != null && attribute.getType().getAggregatedFlag()) {
                 this.aggregatedFlag = true;
             }
-            attribute.getType().updateAggregatedFlag();
+            boolean ret = attribute.getType().updateAggregatedFlag();
+            this.aggregatedFlag = this.aggregationFlag || ret;
         }
-        this.aggregatedFlag = attributes.stream().anyMatch(a -> a.getType().aggregatedFlag);
+        return this.aggregatedFlag;
     }
 
     @Override
